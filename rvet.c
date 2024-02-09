@@ -23,45 +23,45 @@ int max(int a, int b) {
 
 void Event(int pid, Clock *clock) {
     clock->p[pid]++; //evento ocorreu
+    printf("Evento ocorreu no processo: %d Clock: (%d, %d, %d)\n", pid, clock->p[0], clock->p[1], clock->p[2]); 
 }
 
-void Send(int pid, Clock *clock) {
+void Send(int pid, int ele, Clock *clock) {
+    clock->p[ele]++;
     MPI_Send(&(clock->p), 3, MPI_INT, pid, 1, MPI_COMM_WORLD);
-    //printf("Process %d will receive Clock: (%d, %d, %d)\n", pid, clock->p[0], clock->p[1], clock->p[2]); //adicionada
+  printf("Process: %d enviou Clock para %d: (%d, %d, %d)\n", ele, pid, clock->p[0], clock->p[1], clock->p[2]); //adicionada
 
 }
 
-void Receive(int pid, Clock *clock) {
+void Receive(int pid, int ele, Clock *clock) {
     int received_clock[3];
-
+    clock->p[ele]++;
     MPI_Recv(received_clock, 3, MPI_INT, pid, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     for (int i = 0; i < 3; i++) {
         clock->p[i] = max(clock->p[i], received_clock[i]);
     }
 
-    //printf("Process %d sent  message. Clock: (%d, %d, %d)\n", pid, clock->p[0], clock->p[1], clock->p[2]);
-
-}
+    
+   printf("Process: %d recebeu Clock de: %d. (%d, %d, %d)\n", ele, pid, clock->p[0], clock->p[1], clock->p[2]);
+ 
+} 
 
 // Representa o processo de rank 0
 void process0() {
     Clock clock = {{0, 0, 0}};
-    Event(0, &clock);
+    Event(0, &clock); //(1,0,0)
 
-    Event(0, &clock); // Incrementa o relógio para enviar
-    Send(1, &clock);
 
-    Receive(1, &clock);
-    Event(0, &clock); // Incrementa o relógio após a recepção
+    Send(1, 0, &clock); //(1,1,0)
 
-    Event(0, &clock); // Incrementa o relógio para enviar
-    Send(2, &clock);
+    Receive(1, 0, &clock);
 
-    Receive(2, &clock);
-    Event(0, &clock); // Incrementa o relógio após a recepção
 
-    Event(0, &clock); // Incrementa o relógio para enviar
-    Send(1, &clock);
+    Send(2, 0, &clock);
+
+    Receive(2, 0, &clock);
+
+    Send(1, 0, &clock);
 
     Event(0, &clock); // Incrementa o relógio após o evento
     printf("Process: %d, Clock: (%d, %d, %d)\n", 0, clock.p[0], clock.p[1], clock.p[2]);
@@ -72,30 +72,24 @@ void process0() {
 void process1() {
     Clock clock = {{0, 0, 0}};
 
+    Send(0, 1, &clock);
 
-    Event(1, &clock); // Incrementa o relógio para enviar
-    Send(0, &clock);
+    Receive(0, 1, &clock);
 
-    Receive(0, &clock);
-    Event(1, &clock); // Incrementa o relógio após a recepção
-
-    Receive(0, &clock);
-    Event(1, &clock); // Incrementa o relógio após a recepção
+    Receive(0, 1, &clock);
 
     printf("Process: %d, Clock: (%d, %d, %d)\n", 1, clock.p[0], clock.p[1], clock.p[2]);
-}
+} 
 
 // Representa o processo de rank 2
 void process2() {
     Clock clock = {{0, 0, 0}};
     Event(2, &clock);
 
-    Event(2, &clock); // Incrementa o relógio para enviar
-    Send(0, &clock);
+    Send(0, 2, &clock);
 
 
-    Receive(0, &clock);
-    Event(2, &clock); // Incrementa o relógio após a recepção
+    Receive(0, 2, &clock);
 
     printf("Process: %d, Clock: (%d, %d, %d)\n", 2, clock.p[0], clock.p[1], clock.p[2]);
 }
