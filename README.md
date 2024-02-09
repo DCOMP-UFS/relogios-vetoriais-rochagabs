@@ -3,6 +3,6 @@
 Base para a implementação de relógios vetoriais em C
 
 Integrantes:
-Gabriela Rocha Santos Freitas/n
-Michael Hitler Batista do Nascimento/n
-Sarah Leticia Ferreira Doria/n
+<p>Gabriela Rocha Santos Freitas</p>
+<p>Michael Hitler Batista do Nascimento</p>
+<p>Sarah Leticia Ferreira Doria</p>
